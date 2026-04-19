@@ -1,0 +1,20 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# CEVM - Configuración de producción
+
+[context.production.environment]
+  VITE_SUPABASE_URL = "https://juuqrfkbgkvvkhkmxlpn.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1dXFyZmtiZ2t2dmtoa214bHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NzA4MDcsImV4cCI6MjA5MjE0NjgwN30.hffRi6Zr7tnFQ-7FQQMW_IP8GpmzIU0wBhf8_p1K6hE"
+  VITE_SCHOOL_NAME = "CEEVA"
+  VITE_SCHOOL_CODE = "CEEVA"
+  VITE_BRANCH_NAME = "Centro de Estudios en Educación Virtual y Académica"
