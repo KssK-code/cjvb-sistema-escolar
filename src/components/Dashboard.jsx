@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, CreditCard, GraduationCap, AlertCircle, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { resolveBranchDisplayLabel, resolveSchoolDisplayName } from '@/lib/utils';
 
 const Dashboard = ({ students, payments, schoolSettings }) => {
   const totalStudents = students.filter(s => s.status === 'active').length;
@@ -50,8 +51,8 @@ const Dashboard = ({ students, payments, schoolSettings }) => {
         className="mb-8 flex items-center justify-between"
       >
         <div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">{import.meta.env.VITE_SCHOOL_NAME} - Dashboard</h1>
-          <p className="text-white/70">Sistema de Gestión Educativa - Zapopan, Jalisco</p>
+          <h1 className="text-3xl font-bold gradient-text mb-2">{resolveSchoolDisplayName(schoolSettings)} - Dashboard</h1>
+          <p className="text-white/70">Sistema de Gestión Educativa - {resolveBranchDisplayLabel()}</p>
         </div>
         {schoolSettings?.logo_url && (
           <motion.img

@@ -1,4 +1,5 @@
 import { toast } from '@/hooks/use-toast';
+import { resolveBranchDisplayLabel, getPublicCeevaLogoUrl } from './utils';
 
 // Función principal para descargar comprobante de pago en PDF
 export async function downloadPaymentReceiptPDF(student, payment) {
@@ -96,7 +97,7 @@ export async function downloadPaymentReceiptPDFAlternative(student, payment, sch
     // Dirección y contacto
     pdf.setFontSize(9);
     pdf.setFont('helvetica', 'normal');
-    pdf.text('Zapopan, Jalisco', 105, startY + 7, { align: 'center' });
+    pdf.text(resolveBranchDisplayLabel(), 105, startY + 7, { align: 'center' });
     
     // Línea separadora
     pdf.setLineWidth(0.5);
@@ -250,7 +251,7 @@ function publicAssetUrl(path) {
 async function loadSystemLogo(pdf) {
   // Lista de posibles logos en orden de prioridad
   const possibleLogos = [
-    '/logo-ceeva.png',
+    '/logo-cjvb.png',
     '/logo-polanco.png',
     '/logo-avanza.png', 
     '/avanza-logo.png.png',
@@ -303,10 +304,7 @@ function createReceiptHTML(student, payment) {
   const paymentAmount = getPaymentAmount(payment);
   const paymentDate = getPaymentDate(payment);
   const systemName = detectSystemName();
-  const logoSrc =
-    typeof window !== 'undefined' && window.location?.href
-      ? new URL('/logo-ceeva.png', window.location.href).href
-      : '/logo-ceeva.png';
+  const logoSrc = getPublicCeevaLogoUrl();
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">

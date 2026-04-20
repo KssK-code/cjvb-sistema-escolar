@@ -18,7 +18,7 @@ import {
   Tags
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { resolveSchoolDisplayName } from '@/lib/utils';
+import { resolveSchoolDisplayName, resolveBranchDisplayLabel } from '@/lib/utils';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', section: 'dashboard' },
@@ -57,13 +57,13 @@ const Sidebar = ({ activeSection, setActiveSection, schoolSettings, profile }) =
     >
       <div className="p-6 flex items-center space-x-4 border-b border-slate-700/50">
         <img
-          src={schoolSettings?.logo_url || '/logo-ceeva.png'}
+          src={schoolSettings?.logo_url || '/logo-cjvb.png'}
           alt={resolveSchoolDisplayName(schoolSettings)}
           className="h-12 w-12 rounded-full object-cover bg-white/10"
         />
         <div>
           <p className="font-semibold text-lg">{resolveSchoolDisplayName(schoolSettings)}</p>
-          <p className="text-xs text-slate-400">Zapopan, Jalisco</p>
+          <p className="text-xs text-slate-400">{resolveBranchDisplayLabel()}</p>
         </div>
       </div>
 
