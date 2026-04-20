@@ -17,6 +17,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+/** Normaliza estados históricos para unificar "baja temporal" como inactive. */
+function normalizeStudentStatus(status) {
+  if (status === 'temporary_leave') return 'inactive';
+  return status || 'active';
+}
+
 /** Horario opcional: null si no hay selección válida (evita enviar "none" o strings vacíos). */
 function normalizeScheduleId(value) {
   if (value === undefined || value === null || value === '' || value === 'none') return null;
@@ -313,14 +319,14 @@ const StudentForm = ({ open, setOpen, student, courses, schedules, refreshData, 
 };
 
 const StatusManagementDialog = ({ open, setOpen, student, refreshData }) => {
-  const [status, setStatus] = useState(student?.status || 'active');
+  const [status, setStatus] = useState(normalizeStudentStatus(student?.status));
   const [notes, setNotes] = useState(student?.status_notes || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     if (student) {
-      setStatus(student.status);
+      setStatus(normalizeStudentStatus(student.status));
       setNotes(student.status_notes || '');
     }
   }, [student]);
@@ -330,12 +336,12 @@ const StatusManagementDialog = ({ open, setOpen, student, refreshData }) => {
     setIsSubmitting(true);
     try {
       const dataToUpdate = {
-        status: status,
+        status: normalizeStudentStatus(status),
         status_notes: notes,
         status_change_date: new Date().toISOString().split('T')[0],
       };
 
-      if (status === 'temporary_leave' || status === 'definitive_leave') {
+      if (normalizeStudentStatus(status) === 'inactive' || status === 'definitive_leave') {
         dataToUpdate.schedule_id = null;
       }
 
@@ -379,7 +385,7 @@ const StatusManagementDialog = ({ open, setOpen, student, refreshData }) => {
               <SelectTrigger className="input-field"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="active">Activo (Reingreso)</SelectItem>
-                <SelectItem value="temporary_leave">Baja Temporal</SelectItem>
+                <SelectItem value="inactive">Baja Temporal</SelectItem>
                 <SelectItem value="definitive_leave">Baja Definitiva</SelectItem>
                 <SelectItem value="graduated">Graduado</SelectItem>
               </SelectContent>
@@ -412,9 +418,10 @@ const StudentsSection = ({ students, courses, schedules, refreshData }) => {
   const filteredStudents = useMemo(() => {
     return students
       .filter(student => {
+        const normalizedStatus = normalizeStudentStatus(student.status);
         if (statusFilter === 'all') return true;
-        if (statusFilter === 'inactive') return student.status === 'temporary_leave' || student.status === 'definitive_leave';
-        return student.status === statusFilter;
+        if (statusFilter === 'inactive') return normalizedStatus === 'inactive' || normalizedStatus === 'definitive_leave';
+        return normalizedStatus === statusFilter;
       })
       .filter(student =>
         (student.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
@@ -439,9 +446,9 @@ const StudentsSection = ({ students, courses, schedules, refreshData }) => {
   };
 
   const getStatusBadge = (status) => {
-    switch (status) {
+    switch (normalizeStudentStatus(status)) {
       case 'active': return <Badge className="status-paid capitalize"><UserCheck className="w-3 h-3 mr-1" />Activo</Badge>;
-      case 'temporary_leave': return <Badge className="status-pending capitalize"><UserX className="w-3 h-3 mr-1" />Baja Temporal</Badge>;
+      case 'inactive': return <Badge className="status-pending capitalize"><UserX className="w-3 h-3 mr-1" />Baja Temporal</Badge>;
       case 'definitive_leave': return <Badge className="status-overdue capitalize"><UserX className="w-3 h-3 mr-1" />Baja Definitiva</Badge>;
       case 'graduated': return <Badge variant="default" className="bg-blue-500/20 text-blue-300 capitalize"><GraduationCap className="w-3 h-3 mr-1" />Graduado</Badge>;
       default: return <Badge variant="secondary" className="capitalize">{status}</Badge>;
