@@ -26,22 +26,24 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName },
-          emailRedirectTo: window.location.origin
-        }
+      const { data, error } = await supabase.functions.invoke('user-management', {
+        body: {
+          action: 'createUser',
+          payload: { email, password, fullName, role },
+        },
       });
-      if (authError) throw authError;
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ role, full_name: fullName })
-        .eq('id', authData.user.id);
-      if (profileError) {
-        console.warn('Error actualizando perfil:', profileError);
+      if (error) {
+        let detail = error.message || 'Error al invocar la función';
+        try {
+          const ctx = error.context;
+          if (ctx && typeof ctx.json === 'function') {
+            const body = await ctx.json();
+            if (body && body.error) detail = String(body.error);
+          }
+        } catch (_) {
+          /* usar detail por defecto */
+        }
+        throw new Error(detail);
       }
       toast({
         title: 'Usuario creado exitosamente',

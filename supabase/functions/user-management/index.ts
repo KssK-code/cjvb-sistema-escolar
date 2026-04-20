@@ -52,9 +52,12 @@ async function handleCreateUser(supabaseAdmin, { email, password, fullName, role
 
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .insert({ id: authData.user.id, email, full_name: fullName, role })
+    .upsert(
+      { id: authData.user.id, email, full_name: fullName, role },
+      { onConflict: 'id' }
+    )
 
-  if (profileError) console.warn('Profile insert error:', profileError)
+  if (profileError) throw profileError
 
   return new Response(
     JSON.stringify({ success: true, user: authData.user }),
@@ -71,9 +74,12 @@ async function handleInviteUser(supabaseAdmin, { email, fullName, role = 'recept
 
   const { error: profileError } = await supabaseAdmin
     .from('profiles')
-    .insert({ id: authData.user.id, email, full_name: fullName, role })
+    .upsert(
+      { id: authData.user.id, email, full_name: fullName, role },
+      { onConflict: 'id' }
+    )
 
-  if (profileError) console.warn('Profile insert error:', profileError)
+  if (profileError) throw profileError
 
   return new Response(
     JSON.stringify({ success: true, user: authData.user }),

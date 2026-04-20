@@ -17,6 +17,36 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
+/** Horario opcional: null si no hay selección válida (evita enviar "none" o strings vacíos). */
+function normalizeScheduleId(value) {
+  if (value === undefined || value === null || value === '' || value === 'none') return null;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  const s = String(value).trim();
+  if (!s || s === 'none') return null;
+  if (/^\d+$/.test(s)) return parseInt(s, 10);
+  return s;
+}
+
+/**
+ * Solo columnas válidas para students (evita 400 por campos extra del formulario).
+ * schedule_id puede ser null si no hay horario.
+ */
+function buildStudentRow(formData, student) {
+  const scheduleId = normalizeScheduleId(formData.schedule_id);
+  return {
+    student_number: formData.student_number?.trim() || null,
+    name: formData.name?.trim(),
+    email: formData.email?.trim() || null,
+    phone: formData.phone?.trim() || null,
+    address: formData.address?.trim() || null,
+    birth_date: formData.birth_date?.trim() || null,
+    course: formData.course?.trim() || null,
+    status: formData.status || 'active',
+    schedule_id: scheduleId,
+    enrollment_date: student?.enrollment_date || new Date().toISOString().split('T')[0],
+  };
+}
+
 // Función para obtener el siguiente número de estudiante disponible
 // Detecta secuencias continuas y evita saltos anómalos (ej: 63 → 101)
 const getNextStudentNumber = (students) => {
@@ -108,11 +138,7 @@ const StudentForm = ({ open, setOpen, student, courses, schedules, refreshData, 
     e.preventDefault();
     setIsSubmitting(true);
     
-    const dataToSave = { 
-      ...formData, 
-      enrollment_date: student?.enrollment_date || new Date().toISOString().split('T')[0],
-      schedule_id: formData.schedule_id === 'none' ? null : formData.schedule_id
-    };
+    const dataToSave = buildStudentRow(formData, student);
 
     try {
       let error;
