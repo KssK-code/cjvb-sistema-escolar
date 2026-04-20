@@ -6,10 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Search, DollarSign, Calendar, CheckCircle, AlertCircle, Clock, Edit, Trash2, Send } from 'lucide-react';
+import { ChevronDown, ChevronUp, Search, DollarSign, Calendar, CheckCircle, AlertCircle, Clock, Edit, Trash2 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { supabase } from '@/lib/customSupabaseClient';
 import { useToast } from '@/hooks/use-toast';
 
 const MonthlyBlock = ({ 
@@ -104,40 +103,6 @@ const MonthlyBlock = ({
     await onStatusChange(paymentId, newStatus);
   };
 
-  // Función para enviar comprobante de pago
-  const sendPaymentReceipt = async (payment) => {
-    try {
-      const student = students.find(s => s.id === payment.student_id);
-      if (!student || !student.email) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se encontró el email del estudiante"
-        });
-        return;
-      }
-
-      const response = await supabase.functions.invoke('send-payment-receipt', {
-        body: { student, payment }
-      });
-
-      if (response.error) {
-        throw response.error;
-      }
-
-      toast({
-        title: "Comprobante enviado",
-        description: `Comprobante enviado a ${student.email}`
-      });
-    } catch (error) {
-      console.error('Error enviando comprobante:', error);
-      toast({
-        variant: "destructive",
-        title: "Error al enviar comprobante",
-        description: error.message
-      });
-    }
-  };
 
   return (
     <Card className={`glass-effect border-white/20 ${isCurrentMonth ? 'ring-2 ring-blue-400/50' : ''}`}>
@@ -279,17 +244,6 @@ const MonthlyBlock = ({
                                   onClick={() => handleStatusChange(payment.id, 'paid')}
                                 >
                                   Marcar Pagado
-                                </Button>
-                              )}
-                              {payment.status === 'paid' && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 text-purple-400 hover:text-purple-300"
-                                  onClick={() => sendPaymentReceipt(payment)}
-                                  title="Enviar comprobante por email"
-                                >
-                                  <Send className="w-4 h-4" />
                                 </Button>
                               )}
                             </div>
