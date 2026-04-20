@@ -10,11 +10,11 @@
   to = "/index.html"
   status = 200
 
-# CEVM - Configuración de producción
+# CJVB - Configuración de producción
 
 [context.production.environment]
-  VITE_SUPABASE_URL = "https://juuqrfkbgkvvkhkmxlpn.supabase.co"
-  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1dXFyZmtiZ2t2dmtoa214bHBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NzA4MDcsImV4cCI6MjA5MjE0NjgwN30.hffRi6Zr7tnFQ-7FQQMW_IP8GpmzIU0wBhf8_p1K6hE"
-  VITE_SCHOOL_NAME = "CEEVA"
-  VITE_SCHOOL_CODE = "CEEVA"
-  VITE_BRANCH_NAME = "Centro de Estudios en Educación Virtual y Académica"
+  VITE_SUPABASE_URL = "https://xdtptwzqhkeivhgwtknu.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkdHB0d3pxaGtlaXZoZ3d0a251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY2MzEwMTEsImV4cCI6MjA5MjIwNzAxMX0.s0jt8u-BUbjMtrgxKjAJV2JLJ3ng6H6608niGp_AV1A"
+  VITE_SCHOOL_NAME = "CJVB"
+  VITE_SCHOOL_CODE = "CJVB"
+  VITE_BRANCH_NAME = "CJVB Académico"
