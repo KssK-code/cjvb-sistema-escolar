@@ -14,7 +14,15 @@ import { supabase } from '@/lib/customSupabaseClient';
 import { useAuth } from '@/contexts/SupabaseAuthContext';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 
-const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
+function buildFunctionAuthHeaders(session) {
+  const token = session?.access_token;
+  if (!token) {
+    throw new Error('Sesión expirada o no autenticada. Inicia sesión de nuevo.');
+  }
+  return { Authorization: `Bearer ${token}` };
+}
+
+const CreateUserDialog = ({ open, setOpen, refreshUsers, session }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -27,6 +35,7 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
     setIsSubmitting(true);
     try {
       const { data, error } = await supabase.functions.invoke('user-management', {
+        headers: buildFunctionAuthHeaders(session),
         body: {
           action: 'createUser',
           payload: { email, password, fullName, role },
@@ -123,7 +132,7 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers }) => {
   );
 };
 
-const InviteUserDialog = ({ open, setOpen, refreshUsers }) => {
+const InviteUserDialog = ({ open, setOpen, refreshUsers, session }) => {
   const [email, setEmail] = useState('');
   const [fullName, setFullName] = useState('');
   const [role, setRole] = useState('receptionist');
@@ -135,6 +144,7 @@ const InviteUserDialog = ({ open, setOpen, refreshUsers }) => {
     setIsSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke('user-management', {
+        headers: buildFunctionAuthHeaders(session),
         body: { action: 'inviteUser', payload: { email, fullName, role } },
       });
 
@@ -213,7 +223,7 @@ const InviteUserDialog = ({ open, setOpen, refreshUsers }) => {
   );
 };
 
-const DeleteUserDialog = ({ open, setOpen, user, refreshUsers }) => {
+const DeleteUserDialog = ({ open, setOpen, user, refreshUsers, session }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { toast } = useToast();
   
@@ -221,6 +231,7 @@ const DeleteUserDialog = ({ open, setOpen, user, refreshUsers }) => {
       setIsSubmitting(true);
       try {
         const { error } = await supabase.functions.invoke('user-management', {
+          headers: buildFunctionAuthHeaders(session),
           body: { action: 'deleteUser', payload: { userId: user.id } },
         });
   
@@ -272,7 +283,7 @@ const UserManagementSection = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const { toast } = useToast();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, session } = useAuth();
   const { canDeleteUsers, canInviteUsers, isAdmin } = useRolePermissions();
 
   const fetchUsers = useCallback(async () => {
@@ -367,9 +378,9 @@ const UserManagementSection = () => {
           </CardContent>
         </Card>
       </motion.div>
-      <CreateUserDialog open={isCreateDialogOpen} setOpen={setIsCreateDialogOpen} refreshUsers={fetchUsers} />
-      <InviteUserDialog open={isInviteDialogOpen} setOpen={setIsInviteDialogOpen} refreshUsers={fetchUsers} />
-      {selectedUser && <DeleteUserDialog open={isDeleteDialogOpen} setOpen={setIsDeleteDialogOpen} user={selectedUser} refreshUsers={fetchUsers} />}
+      <CreateUserDialog open={isCreateDialogOpen} setOpen={setIsCreateDialogOpen} refreshUsers={fetchUsers} session={session} />
+      <InviteUserDialog open={isInviteDialogOpen} setOpen={setIsInviteDialogOpen} refreshUsers={fetchUsers} session={session} />
+      {selectedUser && <DeleteUserDialog open={isDeleteDialogOpen} setOpen={setIsDeleteDialogOpen} user={selectedUser} refreshUsers={fetchUsers} session={session} />}
     </div>
   );
 };
