@@ -490,42 +490,47 @@ const StudentsSection = ({ students, courses, schedules, refreshData }) => {
 
   return (
     <div className="space-y-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex justify-between items-center">
-        <div><h1 className="text-3xl font-bold gradient-text mb-2">Gestión de Estudiantes</h1><p className="text-white/70">Administra la información de todos los estudiantes</p></div>
-        <Button onClick={openNewStudentDialog} className="btn-primary"><Plus className="w-4 h-4 mr-2" />Nuevo Estudiante</Button>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <div><h1 className="text-2xl sm:text-3xl font-bold gradient-text mb-2">Gestión de Estudiantes</h1><p className="text-white/70 text-sm sm:text-base">Administra la información de todos los estudiantes</p></div>
+        <Button onClick={openNewStudentDialog} className="btn-primary w-full sm:w-auto"><Plus className="w-4 h-4 mr-2" />Nuevo Estudiante</Button>
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <Card className="glass-effect border-white/20">
           <CardHeader>
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <CardTitle className="text-white flex items-center gap-2"><User className="w-5 h-5" />Lista de Estudiantes ({filteredStudents.length})</CardTitle>
-              <div className="flex items-center gap-4">
-                <ToggleGroup type="single" value={statusFilter} onValueChange={(value) => value && setStatusFilter(value)} className="bg-white/10 p-1 rounded-lg">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+              <CardTitle className="text-white flex items-center gap-2 text-base sm:text-lg"><User className="w-5 h-5" />Lista de Estudiantes ({filteredStudents.length})</CardTitle>
+              <div className="flex flex-col gap-3 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+                <ToggleGroup type="single" value={statusFilter} onValueChange={(value) => value && setStatusFilter(value)} className="bg-white/10 p-1 rounded-lg w-full sm:w-auto justify-between sm:justify-start">
                   <ToggleGroupItem value="active" aria-label="Activos">Activos</ToggleGroupItem>
                   <ToggleGroupItem value="inactive" aria-label="Inactivos">Bajas</ToggleGroupItem>
                   <ToggleGroupItem value="all" aria-label="Todos">Todos</ToggleGroupItem>
                 </ToggleGroup>
-                <div className="relative"><Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" /><Input placeholder="Buscar estudiantes..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-field pl-10 w-64" /></div>
+                <div className="relative w-full sm:w-64"><Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" /><Input placeholder="Buscar estudiantes..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="input-field pl-10 w-full" /></div>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader><TableRow className="border-white/20"><TableHead className="text-white/80">Nombre</TableHead><TableHead className="text-white/80">Contacto</TableHead><TableHead className="text-white/80">Curso</TableHead><TableHead className="text-white/80">Horario</TableHead><TableHead className="text-white/80">Estado</TableHead><TableHead className="text-white/80">Inscripción</TableHead><TableHead className="text-white/80 text-right">Acciones</TableHead></TableRow></TableHeader>
+                <TableHeader><TableRow className="border-white/20"><TableHead className="text-white/80 min-w-[180px]">Nombre</TableHead><TableHead className="text-white/80 hidden md:table-cell">Contacto</TableHead><TableHead className="text-white/80 min-w-[140px]">Curso</TableHead><TableHead className="text-white/80 hidden lg:table-cell">Horario</TableHead><TableHead className="text-white/80 min-w-[130px]">Estado</TableHead><TableHead className="text-white/80 hidden md:table-cell">Inscripción</TableHead><TableHead className="text-white/80 text-right min-w-[90px]">Acciones</TableHead></TableRow></TableHeader>
                 <TableBody>
                   {filteredStudents.map((student, index) => (
                     <motion.tr key={student.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.05 }} className="border-white/10 hover:bg-white/5">
-                      <TableCell className="text-white font-medium">{student.name}</TableCell>
-                      <TableCell className="text-white/80">
+                      <TableCell className="text-white font-medium">
+                        <div className="flex flex-col">
+                          <span>{student.name}</span>
+                          <span className="text-xs text-white/60 md:hidden">{student.email}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-white/80 hidden md:table-cell">
                         <div className="flex items-center gap-2 text-sm"><Mail className="w-4 h-4" />{student.email}</div>
                         <div className="flex items-center gap-2 text-sm mt-1"><Phone className="w-4 h-4" />{student.phone || 'N/A'}</div>
                       </TableCell>
                       <TableCell className="text-white/80"><div className="flex items-center gap-2"><Book className="w-4 h-4" />{student.course}</div></TableCell>
-                      <TableCell className="text-white/80"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />{formatScheduleLabel(student.schedules)}</div></TableCell>
+                      <TableCell className="text-white/80 hidden lg:table-cell"><div className="flex items-center gap-2"><Clock className="w-4 h-4" />{formatScheduleLabel(student.schedules)}</div></TableCell>
                       <TableCell>{getStatusBadge(student.status)}</TableCell>
-                      <TableCell className="text-white/80">{student.enrollment_date ? format(parseISO(student.enrollment_date), 'dd MMM yyyy') : 'N/A'}</TableCell>
+                      <TableCell className="text-white/80 hidden md:table-cell">{student.enrollment_date ? format(parseISO(student.enrollment_date), 'dd MMM yyyy') : 'N/A'}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex gap-2 justify-end">
                           <Button variant="ghost" size="sm" onClick={() => handleEdit(student)} className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"><Edit className="w-4 h-4" /></Button>
