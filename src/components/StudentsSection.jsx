@@ -420,7 +420,9 @@ const StudentsSection = ({ students, courses, schedules, refreshData }) => {
       .filter(student => {
         const normalizedStatus = normalizeStudentStatus(student.status);
         if (statusFilter === 'all') return true;
-        if (statusFilter === 'inactive') return normalizedStatus === 'inactive' || normalizedStatus === 'definitive_leave';
+        if (statusFilter === 'inactive') return [
+          'inactive', 'temporary_leave', 'baja_temporal', 'definitive_leave'
+        ].includes(normalizedStatus || student.status);
         return normalizedStatus === statusFilter;
       })
       .filter(student =>
