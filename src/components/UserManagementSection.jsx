@@ -34,26 +34,34 @@ const CreateUserDialog = ({ open, setOpen, refreshUsers, session }) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('user-management', {
-        headers: buildFunctionAuthHeaders(session),
-        body: {
-          action: 'createUser',
-          payload: { email, password, fullName, role },
-        },
-      });
-      if (error) {
-        let detail = error.message || 'Error al invocar la función';
-        try {
-          const ctx = error.context;
-          if (ctx && typeof ctx.json === 'function') {
-            const body = await ctx.json();
-            if (body && body.error) detail = String(body.error);
-          }
-        } catch (_) {
-          /* usar detail por defecto */
+      const {
+        data: { session: activeSession },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+
+      const authHeaders = buildFunctionAuthHeaders(activeSession || session);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/user-management`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+            ...authHeaders,
+          },
+          body: JSON.stringify({
+            action: 'createUser',
+            payload: { email, password, fullName, role },
+          }),
         }
-        throw new Error(detail);
+      );
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result?.error || 'Error al crear usuario');
       }
+
       toast({
         title: 'Usuario creado exitosamente',
         description: `${fullName} puede iniciar sesión con ${email}.`,
