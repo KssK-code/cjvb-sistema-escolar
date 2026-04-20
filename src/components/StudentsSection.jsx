@@ -511,7 +511,36 @@ const StudentsSection = ({ students, courses, schedules, refreshData }) => {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
+            <div className="space-y-3 md:hidden">
+              {filteredStudents.map((student, index) => (
+                <motion.div
+                  key={student.id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.04 }}
+                  className="rounded-xl border border-white/15 bg-white/5 p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-white font-semibold truncate">{student.name}</p>
+                      <p className="text-xs text-white/70 truncate">{student.email}</p>
+                      <p className="text-xs text-white/60 mt-1">{student.phone || 'Sin teléfono'}</p>
+                    </div>
+                    {getStatusBadge(student.status)}
+                  </div>
+                  <div className="mt-3 space-y-1 text-sm text-white/80">
+                    <p className="truncate"><span className="text-white/60">Curso:</span> {student.course || 'N/A'}</p>
+                    <p className="truncate"><span className="text-white/60">Horario:</span> {formatScheduleLabel(student.schedules)}</p>
+                    <p><span className="text-white/60">Inscripción:</span> {student.enrollment_date ? format(parseISO(student.enrollment_date), 'dd MMM yyyy') : 'N/A'}</p>
+                  </div>
+                  <div className="mt-3 flex gap-2 justify-end">
+                    <Button variant="ghost" size="sm" onClick={() => handleEdit(student)} className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/20"><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleStatusManagement(student)} className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-500/20"><UserCog className="w-4 h-4" /></Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader><TableRow className="border-white/20"><TableHead className="text-white/80 min-w-[180px]">Nombre</TableHead><TableHead className="text-white/80 hidden md:table-cell">Contacto</TableHead><TableHead className="text-white/80 min-w-[140px]">Curso</TableHead><TableHead className="text-white/80 hidden lg:table-cell">Horario</TableHead><TableHead className="text-white/80 min-w-[130px]">Estado</TableHead><TableHead className="text-white/80 hidden md:table-cell">Inscripción</TableHead><TableHead className="text-white/80 text-right min-w-[90px]">Acciones</TableHead></TableRow></TableHeader>
                 <TableBody>
