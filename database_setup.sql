@@ -278,3 +278,35 @@ GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
 
 -- Success message
 SELECT 'Database schema created successfully! You can now use your school management system.' as status;
+
+-- ============================================================
+-- FIXES OBLIGATORIOS (evitan bugs en cada cliente nuevo)
+-- ============================================================
+
+-- 1. Columna student_number (siempre falta en schema base)
+ALTER TABLE public.students
+ADD COLUMN IF NOT EXISTS student_number TEXT;
+
+-- 2. FK students → courses (PostgREST la necesita para joins)
+ALTER TABLE public.students
+ADD COLUMN IF NOT EXISTS course_id INTEGER REFERENCES public.courses(id);
+
+-- 3. FK schedules → courses (ya existe pero por si acaso)
+ALTER TABLE public.schedules
+ADD COLUMN IF NOT EXISTS course_id INTEGER REFERENCES public.courses(id);
+
+-- 4. schedule_id nullable (el form no siempre lo tiene)
+ALTER TABLE public.students
+ALTER COLUMN schedule_id DROP NOT NULL;
+
+-- 5. course nullable (campo legacy, no siempre se llena)
+ALTER TABLE public.students
+ALTER COLUMN course DROP NOT NULL;
+
+-- 6. Trigger duplicado (si se comparte Supabase con plataforma)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- 7. Recargar schema cache de PostgREST
+NOTIFY pgrst, 'reload schema';
+
+-- ============================================================
