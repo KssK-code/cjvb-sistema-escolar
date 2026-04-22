@@ -309,4 +309,11 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 -- 7. Recargar schema cache de PostgREST
 NOTIFY pgrst, 'reload schema';
 
+-- 8. Columna teacher en courses
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS teacher TEXT;
+
+-- 9. Columnas de fechas en schedules
+ALTER TABLE public.schedules ADD COLUMN IF NOT EXISTS start_date DATE;
+ALTER TABLE public.schedules ADD COLUMN IF NOT EXISTS end_date DATE;
+
 -- ============================================================
