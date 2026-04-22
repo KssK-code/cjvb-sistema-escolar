@@ -12,7 +12,6 @@ import {
   BookOpen,
   Calendar,
   FileBarChart2,
-  FileBox,
   Scissors,
   History,
   Tags
@@ -28,7 +27,6 @@ const navItems = [
   { icon: FileBarChart2, label: 'Edo. de Cuenta', section: 'accountStatement' },
   { icon: Scissors, label: 'Corte de Caja', section: 'cashCut' },
   { icon: FileText, label: 'Reportes', section: 'reports' },
-  { icon: FileBox, label: 'Documentos', section: 'documents' },
   { icon: BookOpen, label: 'Cursos', section: 'courses' },
   { icon: Calendar, label: 'Horarios', section: 'schedule' },
   { icon: Tags, label: 'Conceptos', section: 'concepts' },

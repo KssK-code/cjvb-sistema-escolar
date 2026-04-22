@@ -12,7 +12,6 @@ import StudentsSection from '@/components/StudentsSection';
 import PaymentsSection from '@/components/PaymentsSection';
 import SettingsSection from '@/components/SettingsSection';
 import ReportsSection from '@/components/ReportsSection';
-import DocumentsSection from '@/components/DocumentsSection';
 import CoursesSection from '@/components/CoursesSection';
 import ScheduleSection from '@/components/ScheduleSection';
 import AccountStatementSection from '@/components/AccountStatementSection';
@@ -163,8 +162,6 @@ function App() {
         return <CashCutSection schoolSettings={schoolSettings} refreshData={fetchProfileAndData} />;
       case 'reports':
         return <ReportsSection schoolSettings={schoolSettings} />;
-      case 'documents':
-        return <DocumentsSection students={activeStudents} refreshData={fetchProfileAndData} />;
       case 'courses':
         return <CoursesSection refreshData={fetchProfileAndData} />;
       case 'schedule':
