@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Users, CreditCard, GraduationCap, AlertCircle, CheckCircle } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { resolveBranchDisplayLabel, resolveSchoolDisplayName } from '@/lib/utils';
+import { supabase } from '@/lib/customSupabaseClient';
+
+const ACTION_LABEL = {
+  INSERT: { students: 'Nuevo estudiante registrado', payments: 'Pago registrado', default: 'Registro creado' },
+  UPDATE: { students: 'Estudiante actualizado', payments: 'Pago actualizado', default: 'Registro actualizado' },
+  DELETE: { students: 'Estudiante eliminado', payments: 'Pago eliminado', default: 'Registro eliminado' },
+};
+
+const ACTION_COLOR = { INSERT: 'bg-green-400', UPDATE: 'bg-blue-400', DELETE: 'bg-red-400' };
+
+function getActivityLabel(log) {
+  const byTable = ACTION_LABEL[log.action] || ACTION_LABEL.UPDATE;
+  return byTable[log.table_name] || byTable.default;
+}
 
 const Dashboard = ({ students, payments, schoolSettings }) => {
+  const [recentActivity, setRecentActivity] = useState([]);
+
+  useEffect(() => {
+    supabase
+      .from('audit_log')
+      .select('id, action, table_name, created_at')
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .then(({ data }) => setRecentActivity(data || []));
+  }, []);
   const totalStudents = students.filter(s => s.status === 'active').length;
   const totalRevenue = payments.reduce((sum, payment) => sum + parseFloat(payment.amount), 0);
   const pendingPayments = payments.filter(p => p.status === 'pending');
@@ -111,27 +135,21 @@ const Dashboard = ({ students, payments, schoolSettings }) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <div>
-                    <p className="text-white font-medium">Nuevo estudiante registrado</p>
-                    <p className="text-white/60 text-sm">Hace 2 horas</p>
-                  </div>
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <div>
-                    <p className="text-white font-medium">Pago recibido - $500</p>
-                    <p className="text-white/60 text-sm">Hace 4 horas</p>
-                  </div>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
-                  <div>
-                    <p className="text-white font-medium">Recordatorio de pago enviado</p>
-                    <p className="text-white/60 text-sm">Hace 1 día</p>
-                  </div>
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                </div>
+                {recentActivity.length === 0 ? (
+                  <p className="text-white/50 text-sm text-center py-4">Sin actividad reciente</p>
+                ) : (
+                  recentActivity.map((log) => (
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                      <div>
+                        <p className="text-white font-medium">{getActivityLabel(log)}</p>
+                        <p className="text-white/60 text-sm">
+                          {formatDistanceToNow(parseISO(log.created_at), { locale: es, addSuffix: true })}
+                        </p>
+                      </div>
+                      <div className={`w-2 h-2 rounded-full ${ACTION_COLOR[log.action] || 'bg-gray-400'}`}></div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
